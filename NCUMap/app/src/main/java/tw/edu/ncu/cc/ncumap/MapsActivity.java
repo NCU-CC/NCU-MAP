@@ -1,14 +1,17 @@
 package tw.edu.ncu.cc.ncumap;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -16,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -34,8 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import tw.edu.ncu.cc.location.client.android.LocationClient;
 import tw.edu.ncu.cc.location.client.tool.response.ResponseListener;
-import tw.edu.ncu.cc.location.client.volley.NCUAsyncLocationClient;
 import tw.edu.ncu.cc.location.data.keyword.Word;
 import tw.edu.ncu.cc.location.data.keyword.WordType;
 import tw.edu.ncu.cc.location.data.person.Person;
@@ -47,11 +51,11 @@ import tw.edu.ncu.cc.location.data.unit.Unit;
 /**
  * Created by Tatsujin on 2014/10/6.
  */
-public class MapsActivity extends ActionBarActivity
+public class MapsActivity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private NCUAsyncLocationClient locationClient;
+    private LocationClient locationClient;
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
     private List<QueryData> queryDataList;
@@ -219,6 +223,7 @@ public class MapsActivity extends ActionBarActivity
                 }
                 AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
                 builder.setTitle(marker.getTitle() + " " + marker.getSnippet());
+                builder.setNegativeButton(R.string.close, null);
                 View message = null;
                 switch (ncuMarker.getWordType()) {
                     case PERSON:
@@ -230,17 +235,20 @@ public class MapsActivity extends ActionBarActivity
                         if (person.getSecondaryUnit() != null)
                             ((TextView) message).append(Html.fromHtml("<br /><a href=\"" + person.getSecondaryUnit().getUrl() + "\">"
                                     + person.getSecondaryUnit().getChineseName() + " " + person.getSecondaryUnit().getEnglishName() + "</a>"));
+                        builder.setView(message);
+                        builder.show();
                         break;
                     case PLACE:
                         Place place = (Place) ncuMarker.getObject();
                         if (PlaceType.SPORT_RECREATION.equals(place.getType())) {
                             message = new ImageView(MapsActivity.this);
                             getNetImage((ImageView) message, place.getPictureName());
-                        }
-                        else {
+                            builder.setView(message);
+                            builder.show();
+                        } else {
                             message = getLayoutInflater().inflate(R.layout.dialog_content, null);
                             ((TextView) message).setMovementMethod(LinkMovementMethod.getInstance());
-                            getPlaceUnits((TextView) message, place.getChineseName());
+                            getPlaceUnits(builder, place.getChineseName());
                         }
                         break;
                     case UNIT:
@@ -248,14 +256,13 @@ public class MapsActivity extends ActionBarActivity
                         message = getLayoutInflater().inflate(R.layout.dialog_content, null);
                         ((TextView) message).setMovementMethod(LinkMovementMethod.getInstance());
                         if (unit.getUrl() != null)
-                            ((TextView) message).setText(Html.fromHtml("<a href=\"" + unit.getUrl() + "\">單位網站</a>"));
+                            ((TextView) message).setText(Html.fromHtml("<a href=\"" + unit.getUrl() + "\">" + getString(R.string.unit_site) + "</a>"));
                         else
-                            ((TextView) message).setText("目前沒有可顯示的資訊");
+                            ((TextView) message).setText(R.string.no_info);
+                        builder.setView(message);
+                        builder.show();
                         break;
                 }
-                builder.setView(message);
-                builder.setNegativeButton(R.string.close, null);
-                builder.show();
             }
         });
     }
@@ -269,7 +276,6 @@ public class MapsActivity extends ActionBarActivity
         float[] result = new float[3];
         Location.distanceBetween(myLatLng.latitude, myLatLng.longitude, ncuLocation.latitude, ncuLocation.longitude, result);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(result[0] > 20000 ? ncuLocation : myLatLng, 15));
-        Log.w("Distance", String.valueOf(result[0]));
     }
 
     private void setWord(final Word word) {
@@ -331,30 +337,27 @@ public class MapsActivity extends ActionBarActivity
         locationClient.getQueue().add(imageRequest);
     }
 
-    private void getPlaceUnits(final TextView textView, String name) {
-        textView.setText("目前沒有可顯示的資訊");
+    private void getPlaceUnits(final AlertDialog.Builder builder, String name) {
         locationClient.getPlaceUnits(name, new ResponseListener<Unit>() {
             @Override
             public void onResponse(List<Unit> responses) {
-                boolean first = true;
+                List<String> unitNames = new ArrayList<>();
+                final List<String> unitUrls = new ArrayList<>();
                 for (Unit unit : responses) {
-                    String unitName = unit.getChineseName() + (unit.getEnglishName() == null ? "" :" " + unit.getEnglishName());
-                    if (first) {
-                        if (TextUtils.isEmpty(unit.getUrl())) {
-                            textView.setText(unitName);
-                        } else {
-                                textView.setText(Html.fromHtml("<a href=\"" + unit.getUrl() + "\">" + unitName + "</a>"));
-                        }
-                        first = false;
-                    } else {
-                        if (TextUtils.isEmpty(unit.getUrl())) {
-                            textView.append(Html.fromHtml("<br />") + unitName);
-                        } else {
-                            textView.append(Html.fromHtml("<br /><a href=\"" + unit.getUrl() + "\">" + unitName + "</a>"));
-                        }
-                    }
+                    unitNames.add(unit.getChineseName() + (unit.getEnglishName() == null ? "" :" " + unit.getEnglishName()));
+                    unitUrls.add(unit.getUrl());
                 }
-                Log.w("PLaceUnitsText", textView.getText().toString());
+                builder.setItems(unitNames.toArray(new CharSequence[unitNames.size()]), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (TextUtils.isEmpty(unitUrls.get(which))) {
+                            Toast.makeText(MapsActivity.this, "", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(unitUrls.get(which))));
+                    }
+                });
+                builder.show();
             }
 
             @Override
@@ -367,6 +370,8 @@ public class MapsActivity extends ActionBarActivity
     private List<NCUMarker> setPlaces(List<Place> places, float iconColor) {
         List<NCUMarker> markers = new ArrayList<>();
         for (Place place : places) {
+            if (place.getLocation() == null)
+                continue;
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(place.getLocation().getLat(), place.getLocation().getLng()))
                     .title(place.getChineseName())

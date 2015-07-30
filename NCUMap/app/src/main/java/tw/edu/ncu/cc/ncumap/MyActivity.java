@@ -10,7 +10,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
@@ -29,18 +29,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import tw.edu.ncu.cc.location.client.android.LocationClient;
 import tw.edu.ncu.cc.location.client.tool.config.LocationConfig;
 import tw.edu.ncu.cc.location.client.tool.config.NCULocationConfig;
 import tw.edu.ncu.cc.location.client.tool.response.ResponseListener;
-import tw.edu.ncu.cc.location.client.volley.NCUAsyncLocationClient;
 import tw.edu.ncu.cc.location.data.keyword.Word;
 import tw.edu.ncu.cc.location.data.place.PlaceType;
 
 
-public class MyActivity extends ActionBarActivity {
+public class MyActivity extends AppCompatActivity {
 
     private static final String[] QUERY_OPTIONS = {"WHEELCHAIR_RAMP", "DISABLED_CAR_PARKING", "DISABLED_MOTOR_PARKING", "EMERGENCY", "AED", "RESTAURANT", "SPORT_RECREATION", "ADMINISTRATION", "RESEARCH", "DORMITORY", "OTHER", "TOILET", "ATM", "BUS_STATION", "PARKING_LOT"};
-    private static final String[] QUERY_OPTIONS_TC = {"無障礙坡道", "無障礙汽車位", "無障礙機車位", "緊急", "AED", "餐廳", "休閒生活", "行政服務", "教學研究", "宿舍", "其他單位", "廁所", "提款機", "公車站牌", "停車場"};
+    private static String[] QUERY_OPTIONS_H;
     private boolean[] needList = {false, false, false, false, false, true, true, true, true, true, true, false, false, false, false};
     private boolean[] isSelected = new boolean[15];
     private Word[] searchSuggestions;
@@ -55,12 +55,14 @@ public class MyActivity extends ActionBarActivity {
 
     public static ArrayList<QueryData> selectedQueryOptions;  //user's selected options
     public static Word word;    //user's selected query string
-    public static NCUAsyncLocationClient locationClient;
+    public static LocationClient locationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
+
+        QUERY_OPTIONS_H = getResources().getStringArray(R.array.query_options);
 
         if (((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number() == null) {
             TextView emergencyText = (TextView) findViewById(R.id.emergency_text);
@@ -108,8 +110,9 @@ public class MyActivity extends ActionBarActivity {
         //create a ncu location client
         LocationConfig locationConfig;
         locationConfig = new NCULocationConfig();
-        locationConfig.setServerAddress("http://140.115.3.97/location");
-        locationClient = new NCUAsyncLocationClient(locationConfig, this);
+        locationConfig.setServerAddress("https://api.cc.ncu.edu.tw/location/v1");
+        locationConfig.setApiToken(getString(R.string.ncu_api_token));
+        locationClient = new LocationClient(locationConfig, this);
 
 
         //settings of query options
@@ -214,7 +217,7 @@ public class MyActivity extends ActionBarActivity {
     private void openMap() {
         for(int i=0;i<isSelected.length;i++){
             if(isSelected[i]) {
-                selectedQueryOptions.add(new QueryData(PlaceType.fromValue(QUERY_OPTIONS[i]), QUERY_OPTIONS_TC[i], needList[i], i));
+                selectedQueryOptions.add(new QueryData(PlaceType.valueOf(QUERY_OPTIONS[i]), QUERY_OPTIONS_H[i], needList[i], i));
             }
         }
         Intent mapsActivity = new Intent(MyActivity.this, MapsActivity.class);

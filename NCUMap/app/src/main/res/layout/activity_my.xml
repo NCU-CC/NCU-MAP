@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:id="@+id/military_button"
-            android:text="@string/military_education_office"
+            android:text="@string/military_training_office"
             style="?android:buttonBarButtonStyle"/>
 
         <Button
@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:id="@+id/front_security_button"
-            android:text="@string/front_security_post"
+            android:text="@string/front_security"
             style="?android:buttonBarButtonStyle"/>
 
         <Button
@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:id="@+id/back_security_button"
-            android:text="@string/back_security_post"
+            android:text="@string/back_security"
             style="?android:buttonBarButtonStyle"/>
 
         <Button

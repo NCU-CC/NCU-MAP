@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">中大地圖</string>
+    <string name="close">關閉</string>
+    <string name="front_security">前門警衛室</string>
+    <string name="back_security">後門警衛室</string>
+    <string name="military_training_office">軍訓室</string>
+    <string name="emergency_number">緊急聯絡電話</string>
+    <string name="healthCenter">衛生保健組</string>
+    <string name="network_unreachable">無法連線</string>
+    <string name="open_network_message">您必須要有網路連線，才能使用中大地圖，請至設定中開啟行動網路或是Wi-Fi。</string>
+    <string name="cancel">取消</string>
+    <string name="network_settings">設定</string>
+    <string name="query_hint">請輸入人名或單位名稱</string>
+    <string name="no_info">目前沒有可顯示的資訊</string>
+    <string-array name="query_options">
+        <item>無障礙坡道</item>
+        <item>無障礙汽車位</item>
+        <item>無障礙機車位</item>
+        <item>緊急</item>
+        <item>AED</item>
+        <item>餐廳</item>
+        <item>休閒生活</item>
+        <item>行政服務</item>
+        <item>教學研究</item>
+        <item>宿舍</item>
+        <item>其他單位</item>
+        <item>廁所</item>
+        <item>提款機</item>
+        <item>公車站牌</item>
+        <item>停車場</item>
+    </string-array>
+    <string name="unit_site">單位網站</string>
+</resources>

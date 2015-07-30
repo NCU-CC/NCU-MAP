@@ -7,11 +7,10 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -28,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-import tw.edu.ncu.cc.location.data.keyword.WordType;
 import tw.edu.ncu.cc.location.data.place.PlaceType;
 
 /**
@@ -107,7 +105,7 @@ public class NavigationDrawerFragment extends Fragment implements ListAdapter.On
 
         Boolean[] addToIsItemSelected = new Boolean[items.size()];
         Arrays.fill(addToIsItemSelected, true);
-        isItemSelected = new ArrayList(Arrays.asList(addToIsItemSelected));
+        isItemSelected = new ArrayList<>(Arrays.asList(addToIsItemSelected));
 
         mDrawerListAdapter = new ListAdapter(getActivity(), items, expandItems, isItemSelected, this, this);
         mDrawerListView.setAdapter(mDrawerListAdapter);
@@ -119,10 +117,6 @@ public class NavigationDrawerFragment extends Fragment implements ListAdapter.On
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
 
-        // set a custom shadow that overlays the main content when the drawer opens
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        // set up the drawer's list view with items and click listener
-
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
@@ -132,7 +126,6 @@ public class NavigationDrawerFragment extends Fragment implements ListAdapter.On
         mDrawerToggle = new ActionBarDrawerToggle(
                 getActivity(),                    /* host Activity */
                 mDrawerLayout,                    /* DrawerLayout object */
-                R.drawable.ic_drawer,             /* nav drawer image to replace 'Up' caret */
                 R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
                 R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
         ) {
@@ -232,13 +225,13 @@ public class NavigationDrawerFragment extends Fragment implements ListAdapter.On
     }
 
     private ActionBar getActionBar() {
-        return ((ActionBarActivity) getActivity()).getSupportActionBar();
+        return ((AppCompatActivity) getActivity()).getSupportActionBar();
     }
 
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
-    public static interface NavigationDrawerCallbacks {
+    public interface NavigationDrawerCallbacks {
         /**
          * Called when an item in the navigation drawer is selected.
          */
@@ -250,11 +243,11 @@ public class NavigationDrawerFragment extends Fragment implements ListAdapter.On
 class ListAdapter extends BaseAdapter {
 
     interface OnItemSelectedListener {
-        public void onItemSelected(int position);
+        void onItemSelected(int position);
     }
 
     interface OnExpandItemSelectedListener {
-        public void onExpandItemSelected(int position, int which);
+        void onExpandItemSelected(int position, int which);
     }
 
     private ArrayList<NavigationListItem> items;
