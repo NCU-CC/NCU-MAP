@@ -351,7 +351,7 @@ public class MapsActivity extends AppCompatActivity
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (TextUtils.isEmpty(unitUrls.get(which))) {
-                            Toast.makeText(MapsActivity.this, "", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MapsActivity.this, R.string.no_url, Toast.LENGTH_SHORT).show();
                             return;
                         }
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(unitUrls.get(which))));

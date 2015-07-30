@@ -13,6 +13,7 @@
     <string name="network_settings">設定</string>
     <string name="query_hint">請輸入人名或單位名稱</string>
     <string name="no_info">目前沒有可顯示的資訊</string>
+    <string name="no_url">此單位目前沒有提供網址</string>
     <string-array name="query_options">
         <item>無障礙坡道</item>
         <item>無障礙汽車位</item>
